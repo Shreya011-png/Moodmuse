@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MoodMuse 🎧</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #d4fc79, #96e6a1);
+        margin: 0;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      h1 {
+        font-size: 2.5rem;
+        color: #333;
+      }
+      .moods {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin: 1rem 0;
+      }
+      button {
+        padding: 0.75rem 1.25rem;
+        border: none;
+        border-radius: 12px;
+        background-color: #fff;
+        cursor: pointer;
+        box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+        font-size: 1rem;
+      }
+      #player {
+        margin-top: 2rem;
+        width: 100%;
+        max-width: 560px;
+        height: clamp(180px, 30vw, 315px);
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      }
+      .controls {
+        margin-top: 1rem;
+        display: flex;
+        gap: 1rem;
+      }
+      .playlist {
+        margin-top: 2rem;
+        width: 100%;
+        max-width: 560px;
+        background: #fff;
+        padding: 1rem;
+        border-radius: 12px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>MoodMuse 🎧</h1>
+
+    <div class="moods">
+      <button onclick="playMood('happy')">😊 Happy</button>
+      <button onclick="playMood('sad')">😢 Sad</button>
+      <button onclick="playMood('chill')">😌 Chill</button>
+      <button onclick="playMood('energetic')">💃 Energetic</button>
+      <button onclick="playMood('sleepy')">😴 Sleepy</button>
+    </div>
+
+    <iframe id="player" src="" allowfullscreen></iframe>
+
+    <div class="controls">
+      <button onclick="nextSong()">🔁 Next Vibe</button>
+      <button onclick="saveSong()">💾 Save This</button>
+      <button onclick="clearPlaylist()">🗑️ Clear All</button>
+    </div>
+
+    <div class="playlist">
+      <h3>🎶 My Mood Playlist</h3>
+      <ul id="playlist"></ul>
+    </div>
+
+    <script>
+      const moodSongs = {
+        happy: [
+          "https://www.youtube.com/embed/lTRiuFIWV54", // Love You Zindagi
+          "https://www.youtube.com/embed/NXL8dpzNkgw", // Badtameez Dil
+          "https://www.youtube.com/embed/CVJ-WpX0Fpk", // Ude Dil Befikre
+        ],
+        sad: [
+          "https://www.youtube.com/embed/Ek17-Sh7jtA", // Tum Hi Ho
+          "https://www.youtube.com/embed/JQbjS0_ZfJ0", // Agar Tum Saath Ho
+          "https://www.youtube.com/embed/YxWlaYCA8MU", // Channa Mereya
+        ],
+        chill: [
+          "https://www.youtube.com/embed/Igf2fymzYGU", // Shayad Lofi
+          "https://www.youtube.com/embed/uT3SBzmDxGk", // Raabta
+          "https://www.youtube.com/embed/DTnzehDIpvU", // Tum Mile Lofi
+        ],
+        energetic: [
+          "https://www.youtube.com/embed/VPLsUdgYHXc", // Kar Gayi Chull
+          "https://www.youtube.com/embed/UO8C3p4gNh0", // The Breakup Song
+          "https://www.youtube.com/embed/JRfuAukYTKg", // Animals
+        ],
+        sleepy: [
+          "https://www.youtube.com/embed/Oe7hYV7g-lY", // Phir Le Aaya Dil (Lofi)
+          "https://www.youtube.com/embed/x5h-LAvQDCQ", // Lofi Rainy Mix
+          "https://www.youtube.com/embed/yO28Z5_Eyls", // Night Changes (Soft)
+        ],
+      };
+
+      let currentMood = "";
+      let currentIndex = 0;
+
+      function playMood(mood) {
+        currentMood = mood;
+        currentIndex = Math.floor(Math.random() * moodSongs[mood].length);
+        document.getElementById("player").src = moodSongs[mood][currentIndex];
+      }
+
+      function nextSong() {
+        if (currentMood) {
+          currentIndex = (currentIndex + 1) % moodSongs[currentMood].length;
+          document.getElementById("player").src =
+            moodSongs[currentMood][currentIndex];
+        }
+      }
+
+      function saveSong() {
+        const url = moodSongs[currentMood][currentIndex];
+        let saved = JSON.parse(localStorage.getItem("playlist")) || [];
+        if (!saved.includes(url)) {
+          saved.push(url);
+          localStorage.setItem("playlist", JSON.stringify(saved));
+          renderPlaylist();
+        }
+      }
+
+      function clearPlaylist() {
+        localStorage.removeItem("playlist");
+        renderPlaylist();
+      }
+
+      function renderPlaylist() {
+        const playlist = JSON.parse(localStorage.getItem("playlist")) || [];
+        const ul = document.getElementById("playlist");
+        ul.innerHTML = "";
+        playlist.forEach((url) => {
+          const title = getSongTitle(url);
+          const li = document.createElement("li");
+          li.innerHTML = `<a href="${url}" target="_blank">${title}</a>`;
+          ul.appendChild(li);
+        });
+      }
+
+      function getSongTitle(url) {
+        const titles = {
+          "lTRiuFIWV54": "Love You Zindagi",
+          "NXL8dpzNkgw": "Badtameez Dil",
+          "CVJ-WpX0Fpk": "Ude Dil Befikre",
+          "Ek17-Sh7jtA": "Tum Hi Ho",
+          "JQbjS0_ZfJ0": "Agar Tum Saath Ho",
+          "YxWlaYCA8MU": "Channa Mereya",
+          "Igf2fymzYGU": "Shayad (Lofi)",
+          "uT3SBzmDxGk": "Raabta",
+          "DTnzehDIpvU": "Tum Mile Lofi",
+          "VPLsUdgYHXc": "Kar Gayi Chull",
+          "UO8C3p4gNh0": "The Breakup Song",
+          "JRfuAukYTKg": "Animals",
+          "Oe7hYV7g-lY": "Phir Le Aaya Dil (Lofi)",
+          "x5h-LAvQDCQ": "Lofi Rainy Mix",
+          "yO28Z5_Eyls": "Night Changes (Soft)",
+        };
+        const id = url.split("/").pop();
+        return titles[id] || "🎵 Unknown Vibe";
+      }
+
+      renderPlaylist();
+    </script>
+  </body>
+</html>
